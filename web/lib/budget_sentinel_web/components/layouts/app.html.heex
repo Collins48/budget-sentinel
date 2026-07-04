@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
+    <title>BudgetSentinel</title>
+    <link rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body>
+    <header class="app-header">
+      <a href={~p"/"} class="app-header__brand">
+        <span class="app-header__mark">BS</span>
+        BudgetSentinel
+      </a>
+      <nav class="app-header__nav">
+        <%= if @current_user do %>
+          <a href={~p"/"}>Dashboard</a>
+          <a href={~p"/projects"}>Projects</a>
+          <a href={~p"/anomalies"}>Anomalies</a>
+          <a href={~p"/alerts"}>Alerts</a>
+          <a :if={BudgetSentinel.Accounts.User.admin?(@current_user)} href={~p"/admin/users"}>Users</a>
+        <% end %>
+      </nav>
+      <div class="app-header__account">
+        <%= if @current_user do %>
+          <span class="app-header__user"><%= @current_user.email %></span>
+          <a href={~p"/users/profile"}>Profile</a>
+          <a href={~p"/users/settings"}>Settings</a>
+          <.link href={~p"/users/log_out"} method="delete">Log out</.link>
+        <% else %>
+          <.link href={~p"/users/log_in"}>Log in</.link>
+        <% end %>
+      </div>
+    </header>
+    <main class="app-main">
+      <.flash_group flash={@flash} />
+      <%= @inner_content %>
+    </main>
+  </body>
+</html>

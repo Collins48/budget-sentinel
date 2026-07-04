@@ -1,0 +1,6 @@
+_build/
+deps/
+.elixir_ls/
+.git/
+*.sw?
+priv/static/assets/cache_manifest.json

@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: budget_sentinel_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ai_service:
+    build: ./ai_service
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-6}
+      FLASK_PORT: 5000
+    ports:
+      - "5000:5000"
+
+  web:
+    build: ./web
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai_service:
+        condition: service_started
+    environment:
+      DATABASE_URL: ecto://postgres:postgres@postgres/budget_sentinel_dev
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-zQeIjKsCWvIaVmQ42N+jHWdFOMfe6pJgBzFZsWAdav15mqR9FNv0J1OFUOc+NYOu}
+      PHX_HOST: ${PHX_HOST:-localhost}
+      PHX_SCHEME: ${PHX_SCHEME:-http}
+      PHX_URL_PORT: ${PHX_URL_PORT:-4000}
+      AI_SERVICE_URL: http://ai_service:5000
+      SMTP_RELAY: ${SMTP_RELAY:-}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+    ports:
+      - "4000:4000"
+
+volumes:
+  postgres_data:

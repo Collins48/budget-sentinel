@@ -1,0 +1,11 @@
+# Secrets — never commit
+.env
+*.env
+!.env.example
+
+# IDE / Claude Code session data
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

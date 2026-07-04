@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetSentinel — Project Proposal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:       #1B2A4A;
+    --blue:       #2E5090;
+    --blue-light: #EAF2FB;
+    --teal:       #1D9E75;
+    --teal-light: #E1F5EE;
+    --amber:      #C8963E;
+    --amber-light:#FAEEDA;
+    --gold:       #C8963E;
+    --gray-bg:    #F5F6FA;
+    --gray-mid:   #BDC3CE;
+    --gray-dark:  #6B7A99;
+    --text:       #1A1A2E;
+    --text-body:  #2C2C3E;
+    --white:      #ffffff;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5pt;
+    color: var(--text-body);
+    background: var(--white);
+    line-height: 1.7;
+  }
+
+  /* ── PAGE LAYOUT ── */
+  .page {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  @media print {
+    body { font-size: 10pt; }
+    .page { max-width: 100%; margin: 0; }
+    .no-break { page-break-inside: avoid; }
+    h2 { page-break-before: auto; }
+    .cover { page-break-after: always; }
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: var(--gold);
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background: var(--gold);
+  }
+
+  .cover-eyebrow {
+    font-size: 9pt;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .cover-title {
+    font-family: 'Merriweather', serif;
+    font-size: 32pt;
+    font-weight: 700;
+    color: var(--white);
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+
+  .cover-subtitle {
+    font-size: 12pt;
+    color: #8FA8C8;
+    text-align: center;
+    line-height: 1.6;
+    max-width: 540px;
+    margin-bottom: 48px;
+  }
+
+  .cover-divider {
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+    margin: 0 auto 48px;
+  }
+
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .cover-meta-item {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 14px 18px;
+  }
+
+  .cover-meta-label {
+    font-size: 7.5pt;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #6B8AAA;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .cover-meta-value {
+    font-size: 9.5pt;
+    color: var(--white);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .cover-footer {
+    position: absolute;
+    bottom: 24px;
+    font-size: 8pt;
+    color: #4A6080;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── CONTENT BODY ── */
+  .content {
+    padding: 48px 52px;
+  }
+
+  /* ── SECTION HEADINGS ── */
+  .section-heading {
+    background: var(--navy);
+    color: var(--white);
+    font-size: 11pt;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin: 32px 0 14px;
+    border-bottom: 3px solid var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-number {
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 8.5pt;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sub-heading {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 16px 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--gray-bg);
+  }
+
+  p { margin-bottom: 10px; line-height: 1.75; }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--blue-light);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-style: italic;
+    color: var(--text-body);
+  }
+
+  /* ── OVERVIEW TABLE ── */
+  .overview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px;
+    font-size: 9.5pt;
+  }
+
+  .overview-table tr:nth-child(odd)  { background: var(--blue-light); }
+  .overview-table tr:nth-child(even) { background: var(--white); }
+  .overview-table td { padding: 8px 12px; border: 1px solid var(--gray-mid); vertical-align: top; }
+  .overview-table td:first-child { font-weight: 600; color: var(--blue); width: 34%; }
+
+  /* ── FEATURE TABLE ── */
+  .feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 16px;
+    font-size: 9pt;
+  }
+
+  .feature-table th {
+    background: var(--navy);
+    color: var(--white);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 8.5pt;
+    letter-spacing: 0.04em;
+  }
+
+  .feature-table th:first-child { border-radius: 6px 0 0 0; }
+  .feature-table th:last-child  { border-radius: 0 6px 0 0; }
+  .feature-table td { padding: 8px 12px; border: 1px solid var(--gray-mid); vertical-align: top; }
+  .feature-table tr:nth-child(odd)  td { background: var(--gray-bg); }
+  .feature-table tr:nth-child(even) td { background: var(--white); }
+  .feature-table td:first-child { font-weight: 600; color: var(--navy); }
+  .feature-table thead tr { border-bottom: 2px solid var(--gold); }
+
+  /* ── OBJECTIVES LIST ── */
+  .obj-list { list-style: none; margin: 8px 0 16px; }
+  .obj-list li {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+    font-size: 9.5pt;
+    line-height: 1.6;
+  }
+  .obj-num {
+    background: var(--navy);
+    color: var(--white);
+    font-size: 7.5pt;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── PHASE BLOCKS ── */
+  .phase-block { margin-bottom: 10px; }
+
+  .phase-header {
+    background: var(--blue);
+    color: var(--white);
+    font-size: 9pt;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  .phase-body {
+    background: var(--blue-light);
+    border: 1px solid var(--gray-mid);
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    padding: 10px 14px;
+  }
+
+  .phase-body ul { list-style: none; }
+  .phase-body li {
+    font-size: 9pt;
+    line-height: 1.6;
+    padding: 2px 0;
+    padding-left: 14px;
+    position: relative;
+  }
+  .phase-body li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-wrapper {
+    background: var(--gray-bg);
+    border: 1px solid var(--gray-mid);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 12px 0 16px;
+  }
+
+  .arch-title {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: var(--gray-dark);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* Tier containers */
+  .tier {
+    border-radius: 10px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+
+  .tier-header {
+    padding: 7px 14px;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tier-header .tier-badge {
+    background: rgba(255,255,255,0.2);
+    font-size: 7pt;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .tier-body {
+    padding: 10px;
+  }
+
+  /* Tier colors */
+  .tier-user   .tier-header { background: #2C3E5A; }
+  .tier-user   .tier-body   { background: #EBF0F8; border: 1px solid #B0BDD0; border-top: none; border-radius: 0 0 10px 10px; }
+
+  .tier-elixir .tier-header { background: var(--blue); }
+  .tier-elixir .tier-body   { background: var(--blue-light); border: 1px solid #B5D4F4; border-top: none; border-radius: 0 0 10px 10px; }
+
+  .tier-python .tier-header { background: var(--teal); }
+  .tier-python .tier-body   { background: var(--teal-light); border: 1px solid #9FE1CB; border-top: none; border-radius: 0 0 10px 10px; }
+
+  .tier-ext    .tier-header { background: #85500B; }
+  .tier-ext    .tier-body   { background: var(--amber-light); border: 1px solid #FAC775; border-top: none; border-radius: 0 0 10px 10px; }
+
+  /* Component grids */
+  .comp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .comp-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .comp-grid-1 { display: grid; grid-template-columns: 1fr; gap: 0; }
+
+  .comp-box {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 6px;
+    padding: 9px 12px;
+    text-align: center;
+  }
+
+  .comp-box-title {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 3px;
+  }
+
+  .comp-box-sub {
+    font-size: 7.5pt;
+    color: var(--gray-dark);
+    line-height: 1.4;
+  }
+
+  .comp-box-full {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 6px;
+    padding: 9px 12px;
+    text-align: center;
+  }
+
+  .comp-box-full .comp-box-title { font-size: 8.5pt; font-weight: 700; color: var(--navy); }
+  .comp-box-full .comp-box-sub   { font-size: 7.5pt; color: var(--gray-dark); }
+
+  /* Arrow connector */
+  .arch-arrow {
+    text-align: center;
+    font-size: 8pt;
+    color: var(--gray-dark);
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .arch-arrow::before,
+  .arch-arrow::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray-mid);
+    max-width: 80px;
+  }
+
+  .arch-arrow-line {
+    font-size: 14pt;
+    color: var(--gray-mid);
+    line-height: 1;
+  }
+
+  /* Flow note */
+  .flow-note {
+    text-align: center;
+    font-size: 7.5pt;
+    color: var(--gray-dark);
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--gray-mid);
+    line-height: 1.5;
+  }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 8pt;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-body);
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── FRAUD SCENARIOS TABLE ── */
+  .fraud-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin: 8px 0 16px;
+  }
+
+  .fraud-table th {
+    background: var(--teal);
+    color: var(--white);
+    padding: 7px 12px;
+    text-align: left;
+    font-size: 8.5pt;
+  }
+
+  .fraud-table th:first-child { border-radius: 6px 0 0 0; }
+  .fraud-table th:last-child  { border-radius: 0 6px 0 0; }
+  .fraud-table td { padding: 7px 12px; border: 1px solid var(--gray-mid); vertical-align: top; }
+  .fraud-table tr:nth-child(odd)  td { background: var(--teal-light); }
+  .fraud-table tr:nth-child(even) td { background: var(--white); }
+  .fraud-table td:first-child { font-weight: 600; color: var(--teal); }
+  .fraud-table thead tr { border-bottom: 2px solid var(--gold); }
+
+  /* ── DB TABLE ── */
+  .db-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    margin: 8px 0 16px;
+  }
+
+  .db-table th {
+    background: var(--navy);
+    color: var(--white);
+    padding: 7px 12px;
+    text-align: left;
+    font-size: 8.5pt;
+  }
+
+  .db-table td { padding: 7px 12px; border: 1px solid var(--gray-mid); vertical-align: top; }
+  .db-table tr:nth-child(odd)  td { background: var(--gray-bg); }
+  .db-table tr:nth-child(even) td { background: var(--white); }
+  .db-table td:first-child { font-weight: 600; color: var(--navy); font-family: 'Courier New', monospace; }
+
+  /* ── OUTCOME LIST ── */
+  .outcome-list { list-style: none; margin: 8px 0 16px; }
+  .outcome-list li {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+    font-size: 9.5pt;
+    line-height: 1.6;
+  }
+  .outcome-num {
+    background: var(--teal);
+    color: var(--white);
+    font-size: 7.5pt;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 2px solid var(--gold);
+    text-align: center;
+    font-size: 8pt;
+    color: var(--gray-dark);
+    padding-bottom: 48px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══════════════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-eyebrow">Academic Project Proposal</div>
+  <div class="cover-title">BudgetSentinel</div>
+  <div class="cover-subtitle">Government Public Project Expenditure Tracking and Anomaly Detection System</div>
+  <div class="cover-divider"></div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Project type</div>
+      <div class="cover-meta-value">AI Web-Based System</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Domain</div>
+      <div class="cover-meta-value">Public Financial Management</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Architecture</div>
+      <div class="cover-meta-value">Microservice — Elixir + Python</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">AI components</div>
+      <div class="cover-meta-value">Isolation Forest · Claude API</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Frontend</div>
+      <div class="cover-meta-value">Phoenix LiveView (real-time)</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-label">Data approach</div>
+      <div class="cover-meta-value">Simulated Rwanda Dataset</div>
+    </div>
+  </div>
+  <div class="cover-footer">Prepared for Academic Project Submission &nbsp;|&nbsp; Confidential</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     CONTENT
+══════════════════════════════════════════════════════ -->
+<div class="content">
+
+  <!-- SECTION 1 -->
+  <div class="section-heading">
+    <span class="section-number">1</span>
+    Project Overview
+  </div>
+  <table class="overview-table">
+    <tr><td>Project title</td><td>BudgetSentinel: Government Public Project Expenditure Tracking and Anomaly Detection System</td></tr>
+    <tr><td>Project type</td><td>Artificial Intelligence Web-Based System</td></tr>
+    <tr><td>Domain</td><td>Public Financial Management and Government Accountability</td></tr>
+    <tr><td>Architecture</td><td>Microservice Architecture — Elixir Phoenix LiveView (web) + Python Flask (AI)</td></tr>
+    <tr><td>AI components</td><td>Isolation Forest Anomaly Detection &nbsp;|&nbsp; Claude API Report Generation &nbsp;|&nbsp; Risk Scoring Engine</td></tr>
+    <tr><td>Data approach</td><td>Realistic Simulated Rwanda Government Expenditure Dataset</td></tr>
+  </table>
+
+  <!-- SECTION 2 -->
+  <div class="section-heading">
+    <span class="section-number">2</span>
+    Background and Problem Statement
+  </div>
+  <p>Public financial management across East Africa continues to face significant challenges, with billions in government funds allocated to infrastructure, education, and health projects failing to translate into completed deliverables. Governments publish procurement records and project budgets, yet no intelligent system exists to continuously monitor whether actual spending aligns with approved milestones and contracts.</p>
+  <p>The absence of real-time expenditure monitoring systems, combined with manual and fragmented auditing processes, creates conditions in which procurement fraud, duplicate payments, inflated contracts, and project abandonment go undetected until public resources are irreversibly lost. Auditors work reactively, reviewing records long after irregularities have occurred, and oversight bodies receive reports too late to intervene effectively.</p>
+  <p>Rwanda, despite being one of Africa's most digitally progressive nations, faces this same challenge. The Rwanda Public Procurement Authority publishes procurement reports, yet no automated intelligence layer exists to continuously monitor expenditure patterns, detect irregularities, and alert oversight bodies in real time. BudgetSentinel addresses this gap by providing an intelligent, automated system that monitors public project expenditures, applies machine learning based anomaly detection, and delivers real-time alerts and AI-generated audit reports to oversight authorities before funds are irreversibly lost.</p>
+
+  <!-- SECTION 3 -->
+  <div class="section-heading">
+    <span class="section-number">3</span>
+    Problem Statement
+  </div>
+  <div class="callout">
+    Government public project expenditure monitoring in Rwanda and across East Africa relies predominantly on manual auditing processes that are reactive, slow, and incapable of detecting complex fraud patterns across large volumes of financial data. This results in the systematic loss of public funds through procurement irregularities, duplicate payments, inflated contracts, and project abandonment that go undetected until significant damage has already occurred. There is a critical need for an intelligent, real-time expenditure monitoring system capable of automatically detecting anomalies, generating audit intelligence, and alerting oversight authorities proactively.
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="section-heading">
+    <span class="section-number">4</span>
+    Project Objectives
+  </div>
+  <p>The following are the key objectives of the BudgetSentinel system:</p>
+  <ul class="obj-list">
+    <li><span class="obj-num">1</span><span>To design and develop an intelligent web-based system that ingests and tracks government public project expenditure data against approved budgets and milestones.</span></li>
+    <li><span class="obj-num">2</span><span>To implement a machine learning based anomaly detection algorithm capable of identifying procurement fraud patterns, duplicate payments, inflated contracts, and unusual expenditure spikes automatically.</span></li>
+    <li><span class="obj-num">3</span><span>To integrate a large language model API to generate intelligent, context-aware audit reports summarizing detected anomalies and recommending corrective actions for oversight authorities.</span></li>
+    <li><span class="obj-num">4</span><span>To develop a real-time visual analytics dashboard using Phoenix LiveView that enables government administrators and auditors to monitor project financial health and view anomaly alerts without manual page refresh.</span></li>
+    <li><span class="obj-num">5</span><span>To implement an automated alert system that dispatches AI-generated audit notifications to designated oversight officers upon detection of high-risk anomalies.</span></li>
+    <li><span class="obj-num">6</span><span>To evaluate the accuracy and effectiveness of the anomaly detection model against ten known fraud patterns embedded within a realistic simulated Rwanda government expenditure dataset.</span></li>
+  </ul>
+
+  <!-- SECTION 5 -->
+  <div class="section-heading">
+    <span class="section-number">5</span>
+    Proposed System Description
+  </div>
+  <p>BudgetSentinel is an AI-powered web-based platform built on a microservice architecture that separates web orchestration from AI computation, designed to bring transparency, accountability, and predictive oversight to government public project funding.</p>
+
+  <div class="sub-heading">5.1 &nbsp; Elixir Phoenix Service</div>
+  <p>The primary web service built with Elixir Phoenix handles all user-facing operations including real-time dashboard management, database operations, and alert dispatching. Phoenix LiveView powers the real-time dashboard, automatically pushing anomaly results and expenditure updates to all connected users without requiring a page refresh. Phoenix PubSub manages broadcast communication ensuring all stakeholders receive anomaly alerts simultaneously.</p>
+
+  <div class="sub-heading">5.2 &nbsp; Python AI Microservice</div>
+  <p>A dedicated Python Flask microservice handles all artificial intelligence and machine learning workloads in isolation from the web layer. This service receives expenditure data forwarded by the Elixir service, runs Isolation Forest anomaly detection models, calculates contractor risk scores, and integrates with the Claude API to generate intelligent audit report summaries. Results are returned to the Elixir service via HTTP and immediately broadcast to the live dashboard.</p>
+
+  <div class="sub-heading">5.3 &nbsp; Data Layer</div>
+  <p>BudgetSentinel operates on a realistic simulated dataset of Rwanda government project expenditures modeled on publicly available Rwanda Public Procurement Authority reports. The dataset includes fifty government projects, two hundred expenditure records, and ten embedded fraud scenarios representing known procurement irregularity patterns.</p>
+
+  <div class="sub-heading">5.4 &nbsp; Anomaly Detection Layer</div>
+  <p>The Isolation Forest machine learning algorithm analyzes expenditure records against approved project budgets to identify anomalies including payments for incomplete milestones, expenditure exceeding approved budgets, duplicate contractor payments, and unusual expenditure spikes. Each detected anomaly is assigned a numerical risk score enabling prioritization of audit interventions.</p>
+
+  <div class="sub-heading">5.5 &nbsp; Reporting and Alert Layer</div>
+  <p>Upon detecting anomalies, the Python microservice calls the Claude API to generate structured, context-aware audit reports summarizing the nature, severity, and financial impact of each irregularity alongside recommended corrective actions. High-risk anomaly reports are automatically dispatched to designated oversight officers via email.</p>
+
+  <!-- SECTION 6 -->
+  <div class="section-heading">
+    <span class="section-number">6</span>
+    Key Features
+  </div>
+  <table class="feature-table">
+    <thead><tr><th style="width:30%">Feature</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Expenditure tracking</td><td>Monitors government project spending against approved budgets and milestones</td></tr>
+      <tr><td>ML anomaly detection</td><td>Isolation Forest model automatically detects fraud patterns and expenditure irregularities</td></tr>
+      <tr><td>Risk scoring</td><td>Assigns numerical risk scores to flagged transactions for audit prioritization</td></tr>
+      <tr><td>AI audit report generation</td><td>Claude API generates intelligent, context-aware audit summaries for each detected anomaly</td></tr>
+      <tr><td>Real-time live dashboard</td><td>Phoenix LiveView updates dashboard instantly when anomalies are detected without page refresh</td></tr>
+      <tr><td>Multi-project monitoring</td><td>Monitors multiple government projects simultaneously on a single platform</td></tr>
+      <tr><td>Automated email alerts</td><td>Dispatches audit reports to oversight officers automatically for high-risk anomalies</td></tr>
+      <tr><td>Anomaly history tracking</td><td>Maintains a searchable record of all detected anomalies and generated audit reports</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 7 — ARCHITECTURE -->
+  <div class="section-heading">
+    <span class="section-number">7</span>
+    System Architecture
+  </div>
+
+  <div class="arch-wrapper">
+    <div class="arch-title">BudgetSentinel — Microservice Architecture</div>
+
+    <!-- TIER 1: USER -->
+    <div class="tier tier-user">
+      <div class="tier-header">
+        <span>Tier 1 — User layer</span>
+        <span class="tier-badge">Browser</span>
+      </div>
+      <div class="tier-body">
+        <div class="comp-grid-1">
+          <div class="comp-box-full">
+            <div class="comp-box-title">User browser</div>
+            <div class="comp-box-sub">Government administrators &nbsp;·&nbsp; Auditors &nbsp;·&nbsp; Oversight officers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="arch-arrow">
+      <span class="arch-arrow-line">↓</span>
+      HTTPS requests
+      <span class="arch-arrow-line">↓</span>
+    </div>
+
+    <!-- TIER 2: ELIXIR -->
+    <div class="tier tier-elixir">
+      <div class="tier-header">
+        <span>Tier 2 — Elixir Phoenix + LiveView</span>
+        <span class="tier-badge">Web orchestration</span>
+      </div>
+      <div class="tier-body">
+        <div class="comp-grid-2">
+          <div class="comp-box">
+            <div class="comp-box-title">Phoenix LiveView</div>
+            <div class="comp-box-sub">Real-time dashboard UI<br>No page refresh needed</div>
+          </div>
+          <div class="comp-box">
+            <div class="comp-box-title">Phoenix PubSub</div>
+            <div class="comp-box-sub">Live anomaly broadcasts<br>to all connected users</div>
+          </div>
+        </div>
+        <div class="comp-grid-2">
+          <div class="comp-box">
+            <div class="comp-box-title">Ecto + PostgreSQL</div>
+            <div class="comp-box-sub">Projects · Expenditures<br>Anomalies · Audit reports</div>
+          </div>
+          <div class="comp-box">
+            <div class="comp-box-title">Swoosh mailer</div>
+            <div class="comp-box-sub">Automated email alerts<br>to oversight officers</div>
+          </div>
+        </div>
+        <div class="comp-grid-1">
+          <div class="comp-box-full">
+            <div class="comp-box-title">Expenditure data ingestion &nbsp;·&nbsp; Alert routing &nbsp;·&nbsp; HTTP client to Python AI service</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="arch-arrow">
+      <span class="arch-arrow-line">↓</span>
+      Internal HTTP calls &nbsp;(triggered only when AI analysis is needed)
+      <span class="arch-arrow-line">↓</span>
+    </div>
+
+    <!-- TIER 3: PYTHON -->
+    <div class="tier tier-python">
+      <div class="tier-header">
+        <span>Tier 3 — Python Flask AI microservice</span>
+        <span class="tier-badge">Intelligence engine</span>
+      </div>
+      <div class="tier-body">
+        <div class="comp-grid-3">
+          <div class="comp-box">
+            <div class="comp-box-title">Isolation Forest</div>
+            <div class="comp-box-sub">ML anomaly detection<br>Fraud pattern recognition</div>
+          </div>
+          <div class="comp-box">
+            <div class="comp-box-title">Risk scoring engine</div>
+            <div class="comp-box-sub">Numerical risk scores<br>Audit prioritization</div>
+          </div>
+          <div class="comp-box">
+            <div class="comp-box-title">Claude API client</div>
+            <div class="comp-box-sub">AI audit report<br>generation + NLP</div>
+          </div>
+        </div>
+        <div class="comp-grid-1">
+          <div class="comp-box-full">
+            <div class="comp-box-title">Simulated Rwanda government expenditure dataset</div>
+            <div class="comp-box-sub">50 projects &nbsp;·&nbsp; 200 expenditure records &nbsp;·&nbsp; 10 embedded fraud scenarios &nbsp;·&nbsp; 5 fraud pattern types</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div class="arch-arrow">
+      <span class="arch-arrow-line">↓</span>
+      API calls to external services
+      <span class="arch-arrow-line">↓</span>
+    </div>
+
+    <!-- TIER 4: EXTERNAL -->
+    <div class="tier tier-ext">
+      <div class="tier-header">
+        <span>Tier 4 — External services and APIs</span>
+        <span class="tier-badge">Third-party</span>
+      </div>
+      <div class="tier-body">
+        <div class="comp-grid-2">
+          <div class="comp-box">
+            <div class="comp-box-title">Claude API</div>
+            <div class="comp-box-sub">Anthropic LLM &nbsp;·&nbsp; Intelligent audit report generation</div>
+          </div>
+          <div class="comp-box">
+            <div class="comp-box-title">Gmail API</div>
+            <div class="comp-box-sub">Google Mail &nbsp;·&nbsp; Email alert delivery to oversight bodies</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flow note -->
+    <div class="flow-note">
+      <strong>Data flow:</strong> User browser → Elixir Phoenix (web layer) → Python Flask (AI layer) → External APIs<br>
+      Results returned up the chain → LiveView dashboard updates all connected users in real time
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#2C3E5A"></div> User layer</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2E5090"></div> Elixir Phoenix (web)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div> Python Flask (AI)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#85500B"></div> External APIs</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#BDC3CE; border:1px solid #999"></div> Arrows = HTTP request flow</div>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="section-heading">
+    <span class="section-number">8</span>
+    Technologies and Tools
+  </div>
+
+  <div class="sub-heading">8.1 &nbsp; Elixir Phoenix Service</div>
+  <table class="feature-table">
+    <thead><tr><th style="width:30%">Technology</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Elixir</td><td>Primary backend language for the web service</td></tr>
+      <tr><td>Phoenix Framework</td><td>Web application framework and routing</td></tr>
+      <tr><td>Phoenix LiveView</td><td>Real-time dashboard without JavaScript frameworks</td></tr>
+      <tr><td>Phoenix PubSub</td><td>Live broadcast of anomaly alerts to all connected users</td></tr>
+      <tr><td>Swoosh</td><td>Automated email alert dispatch to oversight officers</td></tr>
+      <tr><td>Ecto</td><td>Database interaction and query management</td></tr>
+      <tr><td>PostgreSQL</td><td>Primary relational database</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-heading">8.2 &nbsp; Python AI Microservice</div>
+  <table class="feature-table">
+    <thead><tr><th style="width:30%">Technology</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Python</td><td>Primary language for AI and machine learning workloads</td></tr>
+      <tr><td>Flask</td><td>Lightweight web framework exposing AI endpoints to Elixir</td></tr>
+      <tr><td>Scikit-learn</td><td>Isolation Forest anomaly detection model training and inference</td></tr>
+      <tr><td>Pandas</td><td>Expenditure data processing and transformation</td></tr>
+      <tr><td>NumPy</td><td>Numerical computation for risk score calculation</td></tr>
+      <tr><td>Claude API</td><td>Intelligent audit report generation via large language model</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-heading">8.3 &nbsp; External Services</div>
+  <table class="feature-table">
+    <thead><tr><th style="width:30%">Service</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Claude API</td><td>AI-powered audit report generation and anomaly summarization</td></tr>
+      <tr><td>Gmail API</td><td>Automated dispatch of audit alert emails to oversight officers</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 9 -->
+  <div class="section-heading">
+    <span class="section-number">9</span>
+    Database Design Overview
+  </div>
+  <p>The PostgreSQL database is managed through the Elixir Ecto layer with the following core tables:</p>
+  <table class="db-table">
+    <thead><tr><th style="width:28%">Table</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>projects</td><td>Government public projects with names, sectors, approved budgets, and milestones</td></tr>
+      <tr><td>expenditures</td><td>Individual expenditure records linked to projects including amounts, dates, and contractors</td></tr>
+      <tr><td>anomalies</td><td>Detected anomalies with type, severity level, risk score, and detection timestamp</td></tr>
+      <tr><td>audit_reports</td><td>AI-generated audit reports linked to detected anomalies</td></tr>
+      <tr><td>alerts</td><td>Alert records tracking email dispatch status to oversight officers</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 10 -->
+  <div class="section-heading">
+    <span class="section-number">10</span>
+    Methodology
+  </div>
+  <p>The project follows the <strong>Agile Software Development Methodology</strong> with iterative development cycles divided into the following phases:</p>
+
+  <div class="phase-block no-break">
+    <div class="phase-header">Phase 1 — Requirements Analysis &nbsp; (Weeks 1–2)</div>
+    <div class="phase-body"><ul>
+      <li>Define anomaly types and detection criteria based on known procurement fraud patterns</li>
+      <li>Design simulated Rwanda expenditure dataset structure and embedded fraud scenarios</li>
+      <li>Identify system users, roles, and dashboard requirements</li>
+      <li>Document functional and non-functional system requirements</li>
+    </ul></div>
+  </div>
+
+  <div class="phase-block no-break">
+    <div class="phase-header">Phase 2 — System Design &nbsp; (Weeks 3–4)</div>
+    <div class="phase-body"><ul>
+      <li>Design microservice architecture and inter-service HTTP communication protocol</li>
+      <li>Design PostgreSQL database schema and entity relationships</li>
+      <li>Design machine learning model pipeline and anomaly scoring approach</li>
+      <li>Design Phoenix LiveView dashboard wireframes and user interface layouts</li>
+    </ul></div>
+  </div>
+
+  <div class="phase-block no-break">
+    <div class="phase-header">Phase 3 — Development &nbsp; (Weeks 5–10)</div>
+    <div class="phase-body"><ul>
+      <li>Set up Elixir Phoenix project structure and PostgreSQL database with Ecto</li>
+      <li>Develop Phoenix LiveView real-time dashboard and PubSub broadcast system</li>
+      <li>Set up Python Flask microservice and expose anomaly detection endpoints</li>
+      <li>Generate realistic simulated Rwanda government expenditure dataset</li>
+      <li>Train and validate Isolation Forest anomaly detection model on simulated dataset</li>
+      <li>Integrate Claude API for intelligent audit report generation</li>
+      <li>Implement automated email alert system via Swoosh and Gmail API</li>
+      <li>Establish HTTP communication layer between Elixir and Python services</li>
+    </ul></div>
+  </div>
+
+  <div class="phase-block no-break">
+    <div class="phase-header">Phase 4 — Testing &nbsp; (Weeks 11–12)</div>
+    <div class="phase-body"><ul>
+      <li>Unit testing of individual Elixir and Python components</li>
+      <li>Integration testing across microservice communication layer</li>
+      <li>Anomaly detection accuracy evaluation against ten embedded fraud scenarios</li>
+      <li>Real-time dashboard performance and broadcast testing</li>
+      <li>End-to-end system testing covering full flow from data ingestion to alert dispatch</li>
+    </ul></div>
+  </div>
+
+  <div class="phase-block no-break">
+    <div class="phase-header">Phase 5 — Deployment and Documentation &nbsp; (Weeks 13–14)</div>
+    <div class="phase-body"><ul>
+      <li>Deploy complete system for demonstration</li>
+      <li>Prepare full system documentation and user manual</li>
+      <li>Prepare final project report and presentation</li>
+    </ul></div>
+  </div>
+
+  <!-- SECTION 11 -->
+  <div class="section-heading">
+    <span class="section-number">11</span>
+    Data Sources and Limitations
+  </div>
+
+  <div class="sub-heading">11.1 &nbsp; Data Approach</div>
+  <p>Due to the limited availability of publicly accessible government procurement APIs in Rwanda, BudgetSentinel utilizes a realistic simulated dataset of Rwanda government project expenditures as its primary data source. The dataset is modeled on publicly available Rwanda Public Procurement Authority procurement reports and structured to reflect real expenditure patterns across government sectors including infrastructure, education, and health.</p>
+
+  <div class="sub-heading">11.2 &nbsp; Embedded Fraud Scenarios</div>
+  <p>The simulated dataset includes the following fraud pattern types for model evaluation:</p>
+  <table class="fraud-table">
+    <thead><tr><th style="width:28%">Fraud type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>Budget overrun</td><td>Payments significantly exceeding the approved project budget</td></tr>
+      <tr><td>Duplicate payment</td><td>Same contractor paid multiple times for the same milestone</td></tr>
+      <tr><td>Ghost project</td><td>Full payment disbursed for a project with zero completion rate</td></tr>
+      <tr><td>Inflated contract</td><td>Contract value far above market benchmark for the project type</td></tr>
+      <tr><td>Premature payment</td><td>Full payment released before project milestone is achieved</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub-heading">11.3 &nbsp; Production Roadmap</div>
+  <div class="callout">
+    The system architecture is designed to accommodate direct integration with live government financial systems including Rwanda IFMIS, the Rwanda Public Procurement Authority portal, the Open Contracting Data Standard API, and the World Bank Procurement API once public access becomes available. This reflects Rwanda's ongoing digital governance transformation agenda and positions BudgetSentinel as a production-ready solution awaiting API ecosystem maturity.
+  </div>
+
+  <!-- SECTION 12 -->
+  <div class="section-heading">
+    <span class="section-number">12</span>
+    Expected Outcomes
+  </div>
+  <ul class="outcome-list">
+    <li><span class="outcome-num">1</span><span>A fully functional web-based system built on a microservice architecture capable of monitoring and analyzing government project expenditure data in real time.</span></li>
+    <li><span class="outcome-num">2</span><span>A trained Isolation Forest anomaly detection model with measurable precision and recall performance evaluated against ten embedded fraud scenarios in the simulated dataset.</span></li>
+    <li><span class="outcome-num">3</span><span>A real-time Phoenix LiveView dashboard that automatically updates all connected users with detected anomalies and risk scores without manual page refresh.</span></li>
+    <li><span class="outcome-num">4</span><span>An AI-powered audit report generation system producing intelligent, context-aware summaries of detected anomalies using the Claude API.</span></li>
+    <li><span class="outcome-num">5</span><span>An automated email alert system dispatching high-risk anomaly reports to designated oversight officers immediately upon detection.</span></li>
+    <li><span class="outcome-num">6</span><span>A comprehensive evaluation report demonstrating the system's anomaly detection accuracy, response time, and audit report quality against defined performance benchmarks.</span></li>
+  </ul>
+
+  <!-- SECTION 13 -->
+  <div class="section-heading">
+    <span class="section-number">13</span>
+    Significance of the Project
+  </div>
+  <p>BudgetSentinel addresses one of the most persistent and costly challenges in public governance across East Africa — the loss of public funds through undetected procurement fraud and inadequate expenditure monitoring. By combining machine learning anomaly detection, large language model integration, and real-time web technology, the system moves public financial oversight from reactive auditing to proactive, intelligence-driven monitoring.</p>
+  <p>The project's microservice architecture, separating Elixir Phoenix LiveView web orchestration from Python AI computation, reflects industry-standard approaches used by real-world financial technology and government technology organizations. This architectural decision demonstrates advanced software engineering practice while ensuring AI workloads remain independently scalable and maintainable.</p>
+  <p>The use of a realistic simulated dataset rather than live government APIs is a deliberate and transparent academic design decision that enables rigorous model evaluation through controlled fraud scenarios while maintaining the system's readiness for production deployment. This approach is consistent with established practices in academic machine learning research where controlled datasets enable reproducible and measurable evaluation.</p>
+
+  <!-- SECTION 14 -->
+  <div class="section-heading">
+    <span class="section-number">14</span>
+    Conclusion
+  </div>
+  <p>BudgetSentinel represents a timely and impactful application of artificial intelligence and modern web technology to public financial governance. The system directly addresses the gap between government procurement records and real-time accountability, providing oversight bodies with the intelligent tools needed to detect fraud patterns, prevent fund misappropriation, and ensure that government projects deliver intended value to citizens.</p>
+  <p>Through the integration of a real-time Elixir Phoenix LiveView interface, a dedicated Python AI microservice, Isolation Forest anomaly detection, Claude API powered audit report generation, and automated email alerting, BudgetSentinel delivers a complete, defensible, and professionally architected intelligent system that demonstrates both strong technical capability and genuine real-world impact.</p>
+
+  <div class="doc-footer">
+    Prepared for Academic Project Submission &nbsp;|&nbsp; Confidential
+  </div>
+
+</div><!-- end content -->
+</div><!-- end page -->
+</body>
+</html>
