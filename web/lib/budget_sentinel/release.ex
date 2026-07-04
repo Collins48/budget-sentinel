@@ -1,19 +1,33 @@
 defmodule BudgetSentinel.Release do
   @moduledoc """
-  Migration tasks runnable from a compiled release, where `mix` is not
-  available (`bin/budget_sentinel eval "BudgetSentinel.Release.migrate()"`).
+  Migration and seed tasks runnable from a compiled release.
   """
 
   @app :budget_sentinel
 
   def migrate do
     for repo <- repos() do
-      {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+    end
+  end
+
+  def seed do
+    Application.load(@app)
+
+    path = Application.app_dir(@app, "priv/repo/seeds.exs")
+
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn _repo ->
+          Code.eval_file(path)
+        end)
     end
   end
 
   def rollback(repo, version) do
-    {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
+    {:ok, _, _} =
+      Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
   defp repos do
