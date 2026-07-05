@@ -82,6 +82,8 @@ Save the output — you will paste it as `SECRET_KEY_BASE` in the next step.
 
 ## Step 5 — Deploy the Phoenix web service
 
+> **Before adding variables** — Railway injects a `PORT` environment variable automatically. The Dockerfile exposes port `4000`. These must match, so you must explicitly set `PORT=4000` in Railway's environment variables to prevent a mismatch that causes "Application failed to respond".
+
 1. Click **+ Add Service** → **GitHub Repo**
 2. Select the `budget-sentinel` repository again
 3. Before it deploys — go to **Settings** and set:
@@ -100,6 +102,7 @@ Save the output — you will paste it as `SECRET_KEY_BASE` in the next step.
    |---|---|
    | `DATABASE_URL` | paste the value you copied from the PostgreSQL service in Step 2 |
    | `SECRET_KEY_BASE` | paste the value you generated in Step 4 |
+   | `PORT` | `4000` |
    | `PHX_HOST` | leave blank for now — you will fill this in after the first deploy (see Step 6) |
    | `PHX_SCHEME` | `https` |
    | `PHX_URL_PORT` | `443` |
@@ -128,44 +131,30 @@ The invite links and alert email links must contain the correct public URL. Now 
 
 ---
 
-## Step 7 — Seed the database with demo data
+## Step 7 — Seed the database
 
-The migrations ran automatically at startup (Step 5), but the demo dataset (50 projects, 200 expenditures, ministries) still needs to be loaded. Run this once using the Railway CLI:
+Seeds run **automatically on every startup** via the start command — no manual step needed. The `Release.seed/0` function checks whether the database already has ministries before running, so it is completely safe across multiple redeploys. On first deploy, seeds will run and create the 5 ministries, 50 projects, 200 expenditure records, and demo accounts. On all subsequent deploys it skips seeding automatically.
+
+If you ever need to re-seed a fresh database manually, use the Railway CLI:
 
 **Install Railway CLI (if you don't have it):**
 ```bash
 npm install -g @railway/cli
 ```
 
-**Log in:**
+**Log in and link:**
 ```bash
 railway login
-```
-
-**Link to your project:**
-```bash
 railway link
 ```
 Select your BudgetSentinel project and the `web` service when prompted.
 
-**Run the seeds:**
+**Run seeds manually (only needed if seeding failed):**
 ```bash
-railway run bin/budget_sentinel eval "Code.eval_file(\"priv/repo/seeds.exs\")"
+railway exec --service web "/app/bin/budget_sentinel eval \"BudgetSentinel.Release.seed()\""
 ```
 
-> This seeds ministries, 50 projects, 200 expenditure records, and demo admin accounts. It is idempotent — safe to run more than once.
-
-**After seeding, create your own admin account** (the seed admin uses a placeholder email — replace it with a real one):
-```bash
-railway run bin/budget_sentinel eval "
-  alias BudgetSentinel.Accounts
-  {:ok, _} = Accounts.create_user_by_admin(%{
-    'email' => 'kiplimocollins855@gmail.com',
-    'password' => 'BudgetSentinel2026!',
-    'role' => 'admin'
-  })
-"
-```
+> Note: use `railway exec` (not `railway run`). `railway run` executes commands locally on your machine with Railway env vars injected — it does not run inside the deployed container. `railway exec` runs inside the container where the release binary exists.
 
 ---
 
@@ -203,14 +192,16 @@ Check each service works:
 |---|---|---|
 | `DATABASE_URL` | Yes | From Railway PostgreSQL plugin |
 | `SECRET_KEY_BASE` | Yes | 64-byte hex string (generated in Step 4) |
+| `PORT` | Yes | `4000` — must match the Dockerfile EXPOSE port |
 | `PHX_HOST` | Yes | Your Railway public domain (no `https://`) |
 | `PHX_SCHEME` | Yes | `https` |
 | `PHX_URL_PORT` | Yes | `443` |
-| `AI_SERVICE_URL` | Yes | `http://ai-service.railway.internal:5000` |
-| `SMTP_RELAY` | Yes | `smtp.gmail.com` |
-| `SMTP_USERNAME` | Yes | Your Gmail address |
-| `SMTP_PASSWORD` | Yes | Your Gmail app password |
-| `HIGH_RISK_THRESHOLD` | No | `70.0` (default — anomalies above this score trigger alerts) |
+| `AI_SERVICE_URL` | No | `http://ai-service.railway.internal:5000` — defaults to localhost:5000 if not set |
+| `SMTP_RELAY` | No | `smtp.gmail.com` — if absent, emails are captured locally |
+| `SMTP_USERNAME` | No | Your Gmail address |
+| `SMTP_PASSWORD` | No | Your Gmail app password |
+| `HIGH_RISK_THRESHOLD` | No | `70.0` (default) |
+| `DB_SSL` | No | Set to `false` only if your Postgres host does not support SSL (Railway's managed Postgres always supports it) |
 
 ---
 
@@ -229,17 +220,29 @@ No manual steps needed after the initial setup.
 
 ## Troubleshooting
 
-**The app redirects to log in on every page**
-→ `DATABASE_URL` is wrong or the migrations have not run. Check the web service logs in the Railway dashboard.
+**"Application failed to respond" on first visit**
+→ Check Railway deploy logs (click the web service → Deployments → the latest deployment → View Logs). The most common causes in order:
+1. `PORT` not set to `4000` — Railway routes traffic to port 4000 (from EXPOSE in Dockerfile) but the app is binding to a different port. Fix: add `PORT=4000` to the web service variables.
+2. Database SSL mismatch — Railway's managed PostgreSQL requires SSL. If you see a connection error in the logs, the SSL config is failing. The code now enables SSL by default; if it still fails, add `DB_SSL=false` as a temporary test.
+3. `DATABASE_URL` is wrong or missing — copy it directly from the PostgreSQL plugin's Variables tab, not from the connection details page.
 
-**Run Detection Scan hangs indefinitely**
-→ `AI_SERVICE_URL` is pointing to the wrong address. Confirm the ai-service private domain matches exactly. Go to ai-service → Settings → Networking → Private Domain and copy the exact value.
+**`railway run` gives "No such file or directory"**
+→ `railway run` executes commands **locally on your machine** with Railway env vars injected — the Elixir release binary only exists inside the deployed Docker container. Use `railway exec` instead:
+```bash
+railway exec --service web "/app/bin/budget_sentinel eval \"BudgetSentinel.Release.seed()\""
+```
+
+**The app redirects to log in on every page after logging in**
+→ `SECRET_KEY_BASE` is wrong or changed since the last deployment — all sessions become invalid. Generate a new one and redeploy. Also confirm `PHX_HOST` is set to the correct domain.
+
+**Run Detection Scan hangs indefinitely (button stays "Scanning…")**
+→ `AI_SERVICE_URL` is wrong or the ai-service is not running. Go to ai-service in Railway → check it shows healthy. Then confirm the private domain matches exactly what you set in `AI_SERVICE_URL` for the web service.
 
 **Emails not arriving**
-→ Check `SMTP_USERNAME` / `SMTP_PASSWORD` are set correctly. Gmail app passwords must have no spaces. Verify the alert shows `Sent` on `/alerts` — if it shows `Failed`, the SMTP credentials are wrong.
+→ Check that the alert row on `/alerts` shows `Sent` not `Failed`. If `Failed`, the SMTP credentials are wrong. Gmail app passwords must be 16 characters with no spaces. If `Sent`, check the spam/junk folder.
 
 **Build fails for the web service**
-→ The Elixir compiler needs the source files. Confirm `Root Directory` is set to `web` in the Railway service settings, not the repo root.
+→ Confirm `Root Directory` is set to `web` in Railway service Settings — not the repo root and not `budget-sentinel/web`.
 
-**Invite links in emails point to `https://localhost`**
-→ `PHX_HOST` is not set or is still blank. Set it to your Railway public domain and redeploy.
+**Invite links in emails point to `https://localhost` or wrong URL**
+→ `PHX_HOST` is blank or wrong. Set it to your Railway public domain (without `https://`) and Railway will trigger a redeploy automatically.
